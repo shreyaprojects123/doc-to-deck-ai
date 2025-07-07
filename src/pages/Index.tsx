@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader, FileText, Download, Wand2 } from 'lucide-react';
+import { Loader, FileText, Download, Wand2, Link, Upload, Sparkles } from 'lucide-react';
 import { SlideCarousel } from '@/components/SlideCarousel';
 import { generateSlides } from '@/lib/slideGenerator';
 import { exportToPDF } from '@/lib/pdfExporter';
+import { fetchContentFromUrl } from '@/lib/contentFetcher';
 import { useToast } from '@/hooks/use-toast';
 
 export interface Slide {
@@ -46,11 +47,44 @@ const themes = {
 
 const Index = () => {
   const [inputText, setInputText] = useState('');
+  const [urlInput, setUrlInput] = useState('');
   const [slides, setSlides] = useState<Slide[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isFetchingUrl, setIsFetchingUrl] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<keyof typeof themes>('professional');
   const [apiKey, setApiKey] = useState('');
   const { toast } = useToast();
+
+  const handleFetchFromUrl = async () => {
+    if (!urlInput.trim()) {
+      toast({
+        title: "Please enter a URL",
+        description: "Add a Google Docs link or article URL",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsFetchingUrl(true);
+    try {
+      const content = await fetchContentFromUrl(urlInput);
+      setInputText(content);
+      setUrlInput('');
+      toast({
+        title: "Content Fetched!",
+        description: "Successfully extracted text from the URL"
+      });
+    } catch (error) {
+      console.error('Error fetching URL content:', error);
+      toast({
+        title: "Fetch Failed",
+        description: error instanceof Error ? error.message : "Could not fetch content from this URL",
+        variant: "destructive"
+      });
+    } finally {
+      setIsFetchingUrl(false);
+    }
+  };
 
   const handleGenerateSlides = async () => {
     if (!inputText.trim()) {
@@ -103,20 +137,25 @@ const Index = () => {
   const currentTheme = themes[selectedTheme];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Enhanced Header */}
+      <div className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-blue-100">
+        <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Snappy AI Slides
-              </h1>
-              <p className="text-gray-600 mt-1">Transform your docs into professional presentations</p>
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
+                <Sparkles className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 bg-clip-text text-transparent">
+                  Text to Slides Generator
+                </h1>
+                <p className="text-slate-600 text-lg mt-1">Transform your content into professional presentations instantly</p>
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <Select value={selectedTheme} onValueChange={(value: keyof typeof themes) => setSelectedTheme(value)} disabled={slides.length === 0}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-52 h-11">
                   <SelectValue placeholder="Select theme" />
                 </SelectTrigger>
                 <SelectContent>
@@ -130,7 +169,7 @@ const Index = () => {
               <Button 
                 onClick={handleExportPDF} 
                 disabled={slides.length === 0}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 h-11 px-6"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download PDF
@@ -140,37 +179,71 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Input Section */}
+          {/* Enhanced Input Section */}
           <div className="space-y-6">
-            <Card className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-blue-600" />
-                  <h2 className="text-xl font-semibold">Your Content</h2>
+            <Card className="p-8 border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <FileText className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-slate-800">Your Content</h2>
                 </div>
                 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">OpenAI API Key</label>
+                <div className="space-y-6">
+                  {/* API Key Input */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-slate-700">OpenAI API Key</label>
                     <input
                       type="password"
                       value={apiKey}
                       onChange={(e) => setApiKey(e.target.value)}
-                      placeholder="sk-..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="sk-proj-..."
+                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Your API key is stored locally and not sent to our servers</p>
+                    <p className="text-xs text-slate-500">Your API key is stored locally and not sent to our servers</p>
+                  </div>
+
+                  {/* URL Input Section */}
+                  <div className="space-y-3">
+                    <label className="block text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <Link className="w-4 h-4" />
+                      Import from URL
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        placeholder="Google Docs link or article URL..."
+                        className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      />
+                      <Button
+                        onClick={handleFetchFromUrl}
+                        disabled={isFetchingUrl || !urlInput.trim()}
+                        variant="outline"
+                        className="px-4 py-3 h-auto border-slate-200 hover:bg-blue-50"
+                      >
+                        {isFetchingUrl ? (
+                          <Loader className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Upload className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-slate-500">Supports Google Docs and most article URLs</p>
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Document Text</label>
+                  {/* Text Input */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-slate-700">Document Text</label>
                     <Textarea
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
-                      placeholder="Paste your document, notes, or brief here..."
-                      className="min-h-[300px] resize-none"
+                      placeholder="Paste your document, notes, or brief here... or use the URL import above"
+                      className="min-h-[280px] resize-none border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
                 </div>
@@ -178,16 +251,16 @@ const Index = () => {
                 <Button 
                   onClick={handleGenerateSlides}
                   disabled={isGenerating || !inputText.trim() || !apiKey.trim()}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   {isGenerating ? (
                     <>
-                      <Loader className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader className="w-5 h-5 mr-2 animate-spin" />
                       Generating slides...
                     </>
                   ) : (
                     <>
-                      <Wand2 className="w-4 h-4 mr-2" />
+                      <Wand2 className="w-5 h-5 mr-2" />
                       Generate Slides
                     </>
                   )}
@@ -196,19 +269,23 @@ const Index = () => {
             </Card>
           </div>
 
-          {/* Preview Section */}
+          {/* Enhanced Preview Section */}
           <div className="space-y-6">
             {slides.length > 0 ? (
-              <SlideCarousel slides={slides} theme={currentTheme} />
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 border-0">
+                <SlideCarousel slides={slides} theme={currentTheme} />
+              </div>
             ) : (
-              <Card className="p-12 text-center border-2 border-dashed border-gray-200">
-                <div className="space-y-4">
-                  <div className="w-20 h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
-                    <FileText className="w-10 h-10 text-gray-400" />
+              <Card className="p-16 text-center border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+                <div className="space-y-6">
+                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                    <FileText className="w-12 h-12 text-blue-500" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">No slides yet</h3>
-                    <p className="text-gray-500">Add your content and generate slides to see them here</p>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">No slides yet</h3>
+                    <p className="text-slate-500 max-w-md mx-auto">
+                      Add your content using text input or URL import, then generate slides to see them here
+                    </p>
                   </div>
                 </div>
               </Card>
