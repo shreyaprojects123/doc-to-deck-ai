@@ -71,8 +71,11 @@ Make the content professional, concise, and suitable for a business presentation
     const data = await response.json();
     const content = data.choices[0].message.content;
     
+    // Strip markdown code blocks if present
+    const cleanContent = content.replace(/```json\n?/, '').replace(/\n?```$/, '');
+    
     // Parse the JSON response
-    const slides = JSON.parse(content);
+    const slides = JSON.parse(cleanContent);
     
     // Add current date to cover slide if not present
     if (slides[0] && slides[0].type === 'cover') {
