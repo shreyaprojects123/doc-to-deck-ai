@@ -11,16 +11,13 @@ Turn any text or article into a professional slide deck with AI—complete with 
 - Export slides as PDF or PPTX
 - All processing is local—your OpenAI API key is never sent to a third party
 
-## Demo
-
-![Demo Screenshot](demo-screenshot.png)
 
 ## Getting Started
 
 ### 1. **Clone the Repo**
 
 ```sh
-git clone https://github.com/<your-username>/doc-to-deck-ai.git
+git clone https://github.com/shreyaprojects123/doc-to-deck-ai
 cd doc-to-deck-ai
 ```
 
@@ -79,12 +76,6 @@ Visit [http://localhost:5173](http://localhost:5173) in your browser.
 
 - Edit `server.js` to change the prompt or model.
 - Edit `src/pages/Index.tsx` and `src/components/SlideCarousel.tsx` for UI changes.
-
----
-
-## License
-
-MIT
 
 ---
 
