@@ -90,4 +90,4 @@ MIT
 
 ## Credits
 
-Built with ❤️ by [Your Name] and OpenAI.
+Built with OpenAI
