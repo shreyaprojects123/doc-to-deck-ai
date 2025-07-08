@@ -81,4 +81,4 @@ Visit [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## Credits
 
-Built with OpenAI
+Built with Lovable, OpenAI, and Cursor
