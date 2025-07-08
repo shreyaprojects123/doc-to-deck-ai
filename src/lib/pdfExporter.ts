@@ -1,4 +1,3 @@
-
 import { Slide } from '@/pages/Index';
 
 interface Theme {
@@ -61,6 +60,11 @@ export const exportToPDF = (slides: Slide[], theme: Theme) => {
               </li>
             `).join('')}
           </ul>
+          ${slide.visual ? `
+            <pre style="background: rgba(255,255,255,0.08); padding: 1rem; border-radius: 8px; margin-top: 1.5rem; font-size: 0.9rem; overflow-x: auto; max-width: 100%; white-space: pre; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;">${slide.visual}</pre>
+            ${slide.visualDescription ? `<div style="font-size: 1rem; margin-top: 0.5rem;">${slide.visualDescription}</div>` : ''}
+            ${slide.source ? `<div style="font-size: 0.9rem; color: #e0e0e0; margin-top: 0.5rem;">Source: ${slide.source}</div>` : ''}
+          ` : ''}
         </div>
       `}
       <div style="position: absolute; bottom: 1.5rem; right: 1.5rem; font-size: 0.875rem; opacity: 0.7;">

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,12 +9,16 @@ import { generateSlides } from '@/lib/slideGenerator';
 import { exportToPDF } from '@/lib/pdfExporter';
 import { fetchContentFromUrl } from '@/lib/contentFetcher';
 import { useToast } from '@/hooks/use-toast';
+import { exportToPPTX } from "@/lib/pptxExporter";
 
 export interface Slide {
   id: number;
   title: string;
   bullets: string[];
   type: 'cover' | 'content';
+  visual?: string | null;
+  visualDescription?: string | null;
+  source?: string | null;
 }
 
 const themes = {
@@ -52,7 +55,6 @@ const Index = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isFetchingUrl, setIsFetchingUrl] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<keyof typeof themes>('professional');
-  const [apiKey, setApiKey] = useState('');
   const { toast } = useToast();
 
   const handleFetchFromUrl = async () => {
@@ -96,18 +98,9 @@ const Index = () => {
       return;
     }
 
-    if (!apiKey.trim()) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your OpenAI API key",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsGenerating(true);
     try {
-      const generatedSlides = await generateSlides(inputText, apiKey);
+      const generatedSlides = await generateSlides(inputText);
       setSlides(generatedSlides);
       toast({
         title: "Slides Generated!",
@@ -134,6 +127,13 @@ const Index = () => {
     });
   };
 
+  const handleReset = () => {
+    setSlides([]);
+    setInputText('');
+    setUrlInput('');
+    // Optionally reset theme or other state if desired
+  };
+
   const currentTheme = themes[selectedTheme];
 
   return (
@@ -155,7 +155,7 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-4">
               <Select value={selectedTheme} onValueChange={(value: keyof typeof themes) => setSelectedTheme(value)} disabled={slides.length === 0}>
-                <SelectTrigger className="w-52 h-11">
+                <SelectTrigger className="w-52 h-11 border border-blue-200 bg-white text-blue-900 shadow-none focus:ring-2 focus:ring-blue-200">
                   <SelectValue placeholder="Select theme" />
                 </SelectTrigger>
                 <SelectContent>
@@ -174,6 +174,13 @@ const Index = () => {
                 <Download className="w-4 h-4 mr-2" />
                 Download PDF
               </Button>
+              <Button
+                onClick={() => exportToPPTX(slides, selectedTheme)}
+                disabled={slides.length === 0}
+                className="bg-blue-600 hover:bg-blue-700 h-11 px-6"
+              >
+                Export as PPTX
+              </Button>
             </div>
           </div>
         </div>
@@ -189,23 +196,10 @@ const Index = () => {
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <FileText className="w-6 h-6 text-blue-600" />
                   </div>
-                  <h2 className="text-2xl font-bold text-slate-800">Your Content</h2>
+                  <h2 className="text-2xl font-semibold text-slate-800">Your Content</h2>
                 </div>
                 
                 <div className="space-y-6">
-                  {/* API Key Input */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-slate-700">OpenAI API Key</label>
-                    <input
-                      type="password"
-                      value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
-                      placeholder="sk-proj-..."
-                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    />
-                    <p className="text-xs text-slate-500">Your API key is stored locally and not sent to our servers</p>
-                  </div>
-
                   {/* URL Input Section */}
                   <div className="space-y-3">
                     <label className="block text-sm font-semibold text-slate-700 flex items-center gap-2">
@@ -238,7 +232,7 @@ const Index = () => {
                   
                   {/* Text Input */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-slate-700">Document Text</label>
+                    <label className="block text-sm font-medium text-slate-700">Document Text</label>
                     <Textarea
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
@@ -250,7 +244,7 @@ const Index = () => {
 
                 <Button 
                   onClick={handleGenerateSlides}
-                  disabled={isGenerating || !inputText.trim() || !apiKey.trim()}
+                  disabled={isGenerating || !inputText.trim()}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   {isGenerating ? (
@@ -273,7 +267,11 @@ const Index = () => {
           <div className="space-y-6">
             {slides.length > 0 ? (
               <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 border-0">
-                <SlideCarousel slides={slides} theme={currentTheme} />
+                <SlideCarousel
+                  slides={slides}
+                  theme={currentTheme}
+                  onRegenerate={handleReset}
+                />
               </div>
             ) : (
               <Card className="p-16 text-center border-0 shadow-xl bg-white/90 backdrop-blur-sm">
@@ -282,7 +280,7 @@ const Index = () => {
                     <FileText className="w-12 h-12 text-blue-500" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-slate-800 mb-2">No slides yet</h3>
+                    <h2 className="text-2xl font-semibold text-slate-800 mb-2">Slide Preview</h2>
                     <p className="text-slate-500 max-w-md mx-auto">
                       Add your content using text input or URL import, then generate slides to see them here
                     </p>

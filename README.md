@@ -1,73 +1,93 @@
-# Welcome to your Lovable project
+# Doc-to-Deck AI
 
-## Project info
+Turn any text or article into a professional slide deck with AI—complete with visuals, tables, and export to PDF or PPTX.
 
-**URL**: https://lovable.dev/projects/8ea2f09f-0dcb-4fd8-8c7f-401edc379505
+## Features
 
-## How can I edit this code?
+- Paste text or import from a URL (Google Docs, articles, etc.)
+- Generate a slide deck using OpenAI GPT-4o
+- 3 beautiful themes
+- 50% of slides include AI-generated visuals, charts, or tables (with sources)
+- Export slides as PDF or PPTX
+- All processing is local—your OpenAI API key is never sent to a third party
 
-There are several ways of editing your application.
+## Demo
 
-**Use Lovable**
+![Demo Screenshot](demo-screenshot.png)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8ea2f09f-0dcb-4fd8-8c7f-401edc379505) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### 1. **Clone the Repo**
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+git clone https://github.com/<your-username>/doc-to-deck-ai.git
+cd doc-to-deck-ai
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 2. **Install Dependencies**
 
-# Step 3: Install the necessary dependencies.
-npm i
+```sh
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 3. **Set Up Your OpenAI API Key**
+
+Create a `.env` file in the project root:
+
+```
+OPENAI_API_KEY=sk-...your-key-here...
+```
+
+> **Note:** You need an OpenAI API key with access to GPT-4o.
+
+### 4. **Start the Backend**
+
+```sh
+node server.js
+```
+
+### 5. **Start the Frontend**
+
+In a new terminal window/tab:
+
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Visit [http://localhost:5173](http://localhost:5173) in your browser.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## Exporting Slides
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **PDF:** Click "Download PDF"
+- **PPTX:** Click "Export as PPTX"
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## Technologies Used
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
+- React + Vite + TypeScript
 - Tailwind CSS
+- OpenAI GPT-4o API
+- pptxgenjs (for PPTX export)
+- react-markdown (for rendering tables/visuals)
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/8ea2f09f-0dcb-4fd8-8c7f-401edc379505) and click on Share -> Publish.
+## Customization
 
-## Can I connect a custom domain to my Lovable project?
+- Edit `server.js` to change the prompt or model.
+- Edit `src/pages/Index.tsx` and `src/components/SlideCarousel.tsx` for UI changes.
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## License
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+MIT
+
+---
+
+## Credits
+
+Built with ❤️ by [Your Name] and OpenAI.

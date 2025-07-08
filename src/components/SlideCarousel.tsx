@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slide } from '@/pages/Index';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 
 interface SlideCarouselProps {
   slides: Slide[];
@@ -15,9 +15,10 @@ interface SlideCarouselProps {
     text: string;
     textSecondary: string;
   };
+  onRegenerate?: () => void;
 }
 
-export const SlideCarousel = ({ slides, theme }: SlideCarouselProps) => {
+export const SlideCarousel = ({ slides, theme, onRegenerate }: SlideCarouselProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const nextSlide = () => {
@@ -93,6 +94,14 @@ export const SlideCarousel = ({ slides, theme }: SlideCarouselProps) => {
           <div className="absolute bottom-6 right-6 text-sm opacity-70">
             {currentSlide + 1}
           </div>
+
+          {slide.visual && (
+            <div className="mt-4">
+              <MarkdownRenderer>{slide.visual}</MarkdownRenderer>
+              {slide.visualDescription && <p className="text-xs mt-1">{slide.visualDescription}</p>}
+              {slide.source && <p className="text-xs text-gray-500 mt-1">Source: {slide.source}</p>}
+            </div>
+          )}
         </div>
       </Card>
 
@@ -112,6 +121,14 @@ export const SlideCarousel = ({ slides, theme }: SlideCarouselProps) => {
           </button>
         ))}
       </div>
+      {/* Generate new slides button */}
+      {onRegenerate && (
+        <div className="flex justify-end mt-2">
+          <Button onClick={onRegenerate} variant="secondary">
+            Generate new slides
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
