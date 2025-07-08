@@ -6,7 +6,7 @@ export interface SlideData {
 }
 
 export const generateSlides = async (text: string): Promise<SlideData[]> => {
-  const response = await fetch('https://doc-to-deck-backend.onrender.com/api/generate-slides', {
+  const response = await fetch('https://doc-to-deck-ai.onrender.com', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text }),
